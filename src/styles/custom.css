@@ -1,0 +1,36 @@
+.hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-img-sinth {
+  position: absolute;
+  top: 35%;
+  right: calc(50vw - 700px);
+  transform: translateY(-50%);
+  width: 40rem;
+  max-width: 500vw;
+  height: auto;
+  z-index: -1;
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .hero-img-sinth {
+    display: none;
+  }
+}
+
+.hero-img-sinth {
+  /* your existing styles */
+  animation: float 5s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(-50%);
+  }
+  50% {
+    transform: translateY(calc(-50% - 15px));
+  }
+}

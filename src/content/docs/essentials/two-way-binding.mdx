@@ -1,0 +1,201 @@
+---
+title: Two-Way Binding
+description: Keep your variables and UI perfectly in sync, without the boilerplate.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+## Binding is just a connection
+
+In most frameworks, keeping an input in sync with a variable means writing event handlers, calling state setters, and reading `e.target.value`. Sinth removes all of that. A single attribute creates the connection. The variable drives the component, and the component drives the variable.
+
+## Your first binding: text input
+
+Use the `bind` attribute on an `Input` to connect it to a `str` variable.
+
+```ts
+var str name = ""
+
+Input(bind: name, placeholder: "Enter your name")
+Paragraph { "Hello, " + name }
+```
+
+Type into the input and `name` should update.
+
+```bash
+Warning: Variable 'name' shadows a reserved browser global. This may cause unexpected behavior. Consider renaming.
+```
+
+Huh? Why do I get this warning? 
+
+Many browsers reserve the variable `name` for the `window` object. In Chrome, the input doesn't work because of this reservation; therefore, you should use names like `username` or `nameUser` to ensure they aren't already reserved.
+
+So, this is what it should look like:
+
+```ts
+var str username = ""
+
+Input(bind: username, placeholder: "Enter your name")
+Paragraph { "Hello, " + username }
+```
+
+<Aside type="tip">
+  The variable starts as an empty string. If you give it a default value, the input will show that value immediately.
+  ```ts
+  var str username = "Sinth"
+  Input(bind: username)  -- The input will already say "Sinth"
+  ```
+</Aside>
+
+
+
+## Binding to numbers
+
+Numbers work the same way. Use an `int` variable and add the `step` attribute to get a number input with arrow controls.
+
+```ts
+var int quantity = 1
+
+Input(bind: quantity, step: 1)
+Paragraph { "Quantity: " + quantity }
+```
+
+Click the arrows, `quantity` changes. Type a number, `quantity` changes. Everything that reads `quantity` re-renders.
+
+You might wonder: what happens if I type a word into a number input? Sinth handles that for you — the variable stays an integer, and the UI won't break.
+
+```ts
+-- ❌ You don't need to validate or parse
+-- ✅ Sinth keeps the variable clean — it stays an int
+```
+
+## Checkbox binding with `checked`
+
+For boolean variables, use `checked` instead of `bind`. It creates the same two-way connection.
+
+```ts
+var bool isChecked = false
+
+Checkbox(checked: isChecked, label: "I agree to the terms")
+
+if isChecked {
+  Paragraph { "Thank you for agreeing." }
+}
+```
+
+Click the checkbox, `isChecked` flips, the conditional paragraph appears. The variable always reflects the checkbox state, and the checkbox always reflects the variable.
+
+```ts
+var bool darkMode = false
+
+Checkbox(checked: darkMode, label: "Dark mode")
+
+// You can change the variable from anywhere
+Button(onClick: darkMode = !darkMode) { "Toggle dark mode" }
+```
+
+Click the button and the checkbox updates. Click the checkbox and the button's effect is reversed on the next click. They stay in sync because they share one source of truth.
+
+## Binding is reactive everywhere
+
+The bound variable isn't just for display — you can use it in conditionals, loops, function calls, and CSS. The binding keeps everything connected.
+
+```ts
+var str searchTerm = ""
+
+Input(bind: searchTerm, placeholder: "Search...")
+
+if searchTerm != "" {
+  Paragraph { "Searching for: " + searchTerm }
+} else {
+  Paragraph { "Type something to search." }
+}
+```
+
+Every keystroke re-evaluates the conditional. The UI responds instantly.
+
+## What "two-way" actually means
+
+There are two directions, and both happen automatically:
+
+1. **Variable → Component**: When the variable changes (from code, a button, a function), the component updates to match.
+2. **Component → Variable**: When the user interacts (types, clicks, toggles), the variable updates to match.
+
+You don't write code for either direction. The `bind` and `checked` attributes handle both.
+
+```ts
+var str name = "Sinth"
+
+// Direction 1: Variable → Component
+Button(onClick: name = "Updated!") { "Change name" }
+
+// Direction 2: Component → Variable
+Input(bind: name)
+```
+
+Click the button and the input shows "Updated!". Type in the input and the button's next click overwrites whatever you typed. Both stay in sync.
+
+## Common mistake: using `bind` with a checkbox
+
+You might try this:
+
+```ts
+// ❌ Don't use bind for booleans
+Checkbox(bind: isChecked, label: "I agree")
+```
+
+The `bind` attribute is for text and number inputs. For checkboxes, use `checked`.
+
+```ts
+// ✅ Use checked for boolean variables
+Checkbox(checked: isChecked, label: "I agree")
+```
+
+<Aside type="caution">
+  `bind` and `checked` are not interchangeable. `bind` works with `str` and `int` variables on `Input`. `checked` works with `bool` variables on `Checkbox`.
+</Aside>
+
+## Multiple inputs, one variable
+
+You can bind multiple inputs to the same variable. They'll all stay in sync.
+
+```ts
+var str name = ""
+
+Input(bind: name, placeholder: "First input")
+Input(bind: name, placeholder: "Second input")
+Paragraph { "Name: " + name }
+```
+
+Type in either input and everything updates. Both inputs show the same value. This is useful for search bars, settings panels, or anywhere you want multiple access points to the same data.
+
+## Binding and functions
+
+Bound variables work inside functions just like any other reactive variable.
+
+```ts
+var str name = ""
+
+function greeting() -> str {
+  if name == "" {
+    return "Please enter your name."
+  }
+  return "Hello, " + name + "!"
+}
+
+Input(bind: name, placeholder: "Your name")
+Paragraph { greeting() }
+```
+
+Type into the input, `name` changes, `greeting` re-evaluates, the paragraph updates. The binding flows through the function automatically.
+
+## What you learned
+
+- `bind` connects an `Input` to a `str` or `int` variable — both directions, automatically
+- `checked` connects a `Checkbox` to a `bool` variable — same two-way pattern
+- Adding `step` to a bound input turns it into a number field with arrows
+- Bound variables work in conditionals, functions, CSS, and across multiple components
+- Direction 1 (variable → component) and direction 2 (component → variable) are both automatic
+- Don't mix up `bind` and `checked` — `bind` is for text/numbers, `checked` is for booleans
+- Multiple inputs can bind to the same variable and stay in sync
+
+Perfect! Now you'll learn how to compose everything you know into your own [reusable components](../components).

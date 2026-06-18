@@ -1,0 +1,235 @@
+---
+title: Component Basics
+description: A tour of every built-in component in Sinth.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+## You already have everything you need
+
+Sinth ships with a set of built-in components. You might recognize them from HTML: `<h1>, <p>, <div>, <main>` You don't need to import them, register them, or configure anything.
+
+These are your building blocks. Once you know them, you can build almost anything. And when you need more, you'll compose them into your own components.
+
+## Heading
+
+Renders an HTML heading. Pass the level and put the text inside.
+
+```ts
+Heading(level: 1) {"This is a main title"}
+Heading(level: 2) {"This is a section heading"}
+Heading(level: 3) {"This is a subsection"}
+```
+
+`level` goes from 1 to 6, mapping directly to `<h1>` through `<h6>`. You can pass any CSS property as well: `color`, `fontSize`, `fontWeight`, `margin`, anything.
+
+```ts
+Heading(level: 1, color: "#6366f1", fontSize: "32px", fontWeight: "700") {"Styled heading"}
+```
+
+## Paragraph
+
+Renders a paragraph of text. The simplest component in the toolbox.
+
+```ts
+Paragraph {"Hello, world!"}
+Paragraph(color: "#666", fontSize: "14px") {"Smaller, gray text."}
+```
+
+Any CSS property works. The text inside can be static or dynamic.
+
+```ts
+var str name = "Sinth"
+Paragraph {"Built with " + name}
+```
+
+## Div
+
+The generic container from HTML. When you need to group things, apply layout, or wrap content, reach for `Div`.
+
+```ts
+Div(display: "flex", gap: "12px", padding: "16px") {
+  Heading(level: 3) {"Card title"}
+  Paragraph {"Card content goes here."}
+}
+```
+
+`Div` accepts any CSS property as an attribute. Flexbox, grid, spacing, backgrounds, borders, everything works the way you expect in HTML!
+
+## Button
+
+A clickable button. The `onClick` attribute takes an expression or a function call.
+
+```ts
+var int count = 0
+Button(onClick: count += 1) {"Click me"}
+```
+
+The expression runs when the button is clicked. You can chain multiple actions with semicolons.
+
+```ts
+var int clicks = 0
+var str message = ""
+
+Button(onClick: clicks += 1; message = "Clicked " + clicks) {"Multi-action button"}
+```
+
+You can also call functions.
+
+```ts
+function greet() {
+  alert("Hello!")
+}
+
+Button(onClick: greet()) {"Say hello"}
+```
+
+## Input
+
+A text input field with two-way binding. Use `bind` to connect it to a variable.
+
+```ts
+var str name = ""
+Input(bind: name, placeholder: "Enter your name")
+Paragraph {"Hello, " + name}
+```
+
+When you type, `name` updates. When `name` updates, everything that uses it re-renders.
+
+### Number inputs with step
+
+```ts
+var int quantity = 1
+Input(bind: quantity, step: 1)
+```
+
+The `step` attribute turns the input into a number field with arrow controls. The variable stays an integer.
+
+## Checkbox
+
+A checkbox bound to a boolean variable.
+
+```ts
+var bool isChecked = false
+Checkbox(checked: isChecked, label: "I agree to the terms")
+```
+
+The `checked` attribute works like `bind`, it creates two-way binding. Click the checkbox, `isChecked` flips. Change `isChecked` from anywhere, the checkbox updates.
+
+```ts
+var bool darkMode = false
+
+Checkbox(checked: darkMode, label: "Dark mode")
+
+if darkMode {
+  Paragraph {"Dark mode is on"}
+} else {
+  Paragraph {"Dark mode is off"}
+}
+```
+
+## Br
+
+A line break. That's basically it! It works exactly as in HTML.
+
+```ts
+Paragraph {"First line."}
+Br()
+Paragraph {"Second line, with space above."}
+```
+
+<Aside type="caution">Remember to use `()` for `Br()`!</Aside>
+
+## Main
+
+The root wrapper for your page content.
+
+```ts
+page
+
+Main {
+  Heading(level: 1) {"Welcome"}
+  Paragraph {"This is the main content area."}
+}
+```
+
+You can style `Main` just like `Div`. It accepts any CSS property.
+
+```ts
+Main(padding: "40px", maxWidth: "800px", margin: "0 auto") {
+  Heading(level: 1) {"Centered page"}
+}
+```
+<Aside type="tip">`Main {}` completely optional, but it will give you a better structured file.</Aside>
+
+## Style, Script, and imports
+
+These aren't visual components, but they're built into the language.
+
+### Style
+
+Define scoped CSS or SCSS directly in your page or component.
+
+```ts
+style lang="scss" {
+  $primary: #6366f1;
+
+  .card {
+    padding: 16px;
+    border-radius: 8px;
+    background: lighten($primary, 40%);
+  }
+}
+```
+
+The styles are scoped to the page or component. They won't leak out and affect other parts of your app.
+
+### Script
+
+Write page-level JavaScript when you need it.
+
+```ts
+script {
+  console.log("Page loaded!");
+}
+```
+
+### Import
+
+Bring in other Sinth files, CSS, or JavaScript.
+
+```ts
+import components/Navbar.sinth as Navbar
+import css "./styles.css"
+import js "./helpers.js"
+```
+
+## How they work together
+
+All built-in components accept CSS properties as attributes. All of them can contain dynamic expressions. All of them re-render when their variables change.
+
+This consistency means you only learn the pattern once:
+
+```ts
+ComponentName(property: value, anotherProperty: value) {
+  "Content or children go here"
+}
+```
+
+That's every built-in component. `Heading`, `Paragraph`, `Div`, `Button`, `Input`, `Checkbox`, `Br`, `Main`. They all follow this same shape.
+
+## What you learned
+
+- `Heading` renders h1 through h6, takes `level` and any CSS
+- `Paragraph` renders text, takes any CSS
+- `Div` is the generic container, takes any CSS
+- `Button` takes `onClick` for actions, can chain multiple with `;`
+- `Input` uses `bind` for two-way binding with string or integer variables
+- `Checkbox` uses `checked` for two-way binding with boolean variables
+- `Br` inserts a line break, no attributes needed
+- `Main` wraps your page content, takes any CSS
+- Every component accepts CSS properties as attributes
+- `style`, `script`, and `import` handle non-visual concerns
+
+These eight components cover most of what you need. The next step is composing them into your own reusable components.
+
+Next, you will learn how to easily combine this component with [reactivity](../reactivity). You are doing great!

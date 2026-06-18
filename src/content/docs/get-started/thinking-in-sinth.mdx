@@ -1,0 +1,91 @@
+---
+title: Thinking in Sinth
+description: Learn the mental model behind Sinth!
+---
+import { Aside } from '@astrojs/starlight/components';
+
+## Did you know?
+
+**Sinth** stands for **S**inth **I**s **N**ot **T**hat **H**ard. It was built so writing reactive interfaces feels less like programming and more like thinking out loud.
+
+This page isn't about syntax yet, it's about the mindset you need to code with Sinth. Once you use Sinth this way, the rest of the docs will hopefully feel not that hard!
+
+## You describe what you want, not how to do it
+
+In traditional web development, updating a counter looks something like this:
+
+- Find the button in the DOM
+- Listen for a click event
+- Update a variable
+- Manually find the heading element
+- Set its text content to the new value
+
+Every step is you telling the browser *how* to do its job.
+
+Sinth flips this. You write:
+
+```ts
+var int count = 0
+Heading(level: 1) {count}
+Button(onClick: count += 1) {"Increment"}
+```
+
+You didn't write "find the element" or "update the text." You just declared: "The heading shows `count`, when the button is clicked, increment `count`."
+
+**Sinth figures out the rest.** This is the core of reactivity: When data changes, the interface updates automatically!
+
+## UI is a reflection of state
+
+Think of your interface as a mirror. The mirror doesn't need instructions on how to reflect, it just shows whatever is in front of it!
+
+In Sinth, your variables are what stand in front of the mirror. Change the variable, and the reflection updates. You never need to manually edit the DOM.
+
+## Logic and UI live together
+
+In many frameworks, logic and UI are kept separate. Sinth deliberately puts them side by side:
+
+```ts
+var bool isAdmin = false
+
+Checkbox(checked: isAdmin, label: "Admin mode?")
+
+if isAdmin {
+  Button(onClick: deletePost()) {"Delete"}
+}
+
+function deletePost() {
+  alert("Post deleted!")
+}
+```
+
+The variable, the checkbox that controls it, and the conditional button all sit together. You read top to bottom and understand exactly what's happening. No jumping between files. No "where does this state come from?"
+
+## Reactivity has no ceremony
+
+In contrast to other declarative frameworks like **`React`**, Sinth needs no `useState`, `setState`, `dispatch` or `emit`. You declare a variable, you use it in your UI, and when you change it, Sinth responds:
+
+```ts
+var str name = ""
+Input(bind: name, placeholder: "Enter your name")
+Paragraph {"Hello, " + name}
+```
+
+The `bind` connects the input to the variable. When you type, `name` updates. When `name` updates, the paragraph updates. Far too easy, isn't it?
+<Aside type="note">
+**Two-way binding** means the variable and the input stay in sync automatically.
+</Aside>
+## It compiles to plain JavaScript
+
+Sinth is a compiler. When you run `sinth build`, your `.sinth` file is transformed into optimized JavaScript.
+
+This also means Sinth plays nicely with other HTML/Vue/React/... projects!
+
+## How you can think
+
+**Stop thinking about steps. Start thinking about state!**
+
+Describe the UI as it should look for any given value. Sinth handles keeping it in sync. The less you think about *how* to update the page, the more you can focus on *what* you want to build.
+
+## Ready to build?
+
+The [**Essentials**](/essentials/component-basics) section walks through each concept hands-on. By the end, you'll be able to build interactive interfaces without reaching for a tutorial every time.

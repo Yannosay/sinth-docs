@@ -1,0 +1,40 @@
+---
+title: Quick Start
+description: Build your first interactive Sinth app in under a minute.
+---
+import LiveDemo from '../../../components/LiveDemo.astro';
+
+## Your first Sinth app
+
+Let's build a counter that increments when you click a button. You'll see it working immediately — no setup beyond installation required.
+
+<LiveDemo>
+```sinth
+page
+title = "Counter"
+var int count = 0
+Main {
+  Heading(level: 1) {count}
+  Button(onClick: count += 1) {"Increment"}
+}
+```
+</LiveDemo>
+
+## What's happening here?
+
+To truly understand why Sinth does what it does, you will need to dive further in the docs, but here's the big picture:
+
+- **`page`** — Every Sinth file starts by declaring it's a page.
+- **`title = "Counter"`** — Sets the browser tab title.
+- **`var int count = 0`** — Creates a piece of memory called `count` that starts at zero.
+- **`Main { ... }`** — Everything inside is what shows up on screen.
+- **`Heading(level: 1) {count}`** — Displays the current count as a large heading.
+- **`Button(onClick: count += 1) {"Increment"}`** — Shows a button that, when clicked, adds 1 to `count` and updates the display automatically.
+
+## The key insight
+
+When you click the button, `count` changes and Sinth **automatically** updates the heading to show the new value. You didn't write any code to refresh the page or find the element. This is called **reactivity**, and it's the core idea behind Sinth.
+
+## Next steps
+
+Now that you've seen Sinth in action, head to [**Thinking in Sinth**](/get-started/thinking-in-sinth) to understand *why* this works the way it does. Then the **Essentials** section will teach you each concept properly so you can build your own ideas.

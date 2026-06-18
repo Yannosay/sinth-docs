@@ -1,0 +1,186 @@
+---
+title: Reactivity
+description: How Sinth automatically updates your UI when your data changes.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+## The heart of Sinth
+
+Reactivity is what makes Sinth feel alive. You change a variable, and every part of your UI that depends on it updates instantly. And no, you do not need `useState`, or complicating manual DOM updates. Sinth does it easy.
+
+Before we dive in, one rule: **every reactive variable must be declared with `var`**. Try to use a plain assignment and Sinth will stop you right at compile time.
+
+```ts
+// ❌ This won't work – Sinth doesn't know what "count" is
+count = 0
+
+// ✅ This creates a reactive integer
+var int count = 0
+```
+
+Now you have a tracked piece of state. Let's use it!
+
+## Your first reactive UI: a counter
+
+Declare a variable, display it and change it on a button click:
+
+```ts
+var int count = 0
+
+Main {
+  Heading(level: 1) { count }
+  Button(onClick: count += 1) { "Increment" }
+}
+```
+
+Click the button and the heading updates immediately. The expression `{ count }` is reactive: whenever `count` changes, Sinth re‑evaluates just that part of the DOM.
+
+<Aside type="tip">
+  You can chain multiple actions in one `onClick` by separating them with semicolons.
+  ```ts
+  Button(onClick: count += 1; message = "Clicked!") { "Click me" }
+  ```
+  Everything runs together and all reactive updates happen in a single render cycle.
+</Aside>
+
+## Reactivity in conditionals
+
+Place an `if` (or `if`-`else`) directly inside a component’s content. It will re‑evaluate whenever the variables it reads change.
+
+```ts
+var bool isFullscreen = false
+
+Button(onClick: isFullscreen = !isFullscreen) {
+  if isFullscreen {
+    "Exit Fullscreen"
+  } else {
+    "Enter Fullscreen"
+  }
+}
+```
+
+No extra callbacks, no event handlers beyond the assignment. The conditional is part of the UI and updates automatically.
+
+## Reactivity in loops
+
+Loops re‑render when the array they iterate over changes. Adding items works naturally.
+
+```ts
+var str[] items = ["First", "Second", "Third"]
+
+for item, index in items {
+  Paragraph { item }
+}
+
+Button(onClick: items.push("New item")) { "Add item" }
+```
+
+But what about removing an item? You might try to use a method like `items.remove(index)`. However, Sinth detects changes by tracking the variable itself, and many array mutations don’t trigger a re‑render.
+
+```ts
+// ❌ This won't update the UI because the variable reference hasn't changed
+items.remove(0)
+```
+
+Instead, **rebuild the array and reassign the variable**.
+
+```ts
+var obj history = ["Alice", "Bob", "Charlie"]
+
+function removeUser(index) {
+  var obj newList = []
+  for user, i in history {
+    if i != index {
+      newList.push(user)
+    }
+  }
+  history = newList   // ✅ Reassignment triggers reactivity
+}
+
+for user, i in history {
+  Paragraph { user }
+  Button(onClick: removeUser(i)) { "Remove" }
+}
+```
+
+That’s the pattern: build a new array, then assign it back to the same variable.
+
+## Functions are reactive too
+
+Functions that read reactive variables automatically re‑evaluate when those variables change. They can return text, numbers, or even UI.
+
+```ts
+var bool isAdmin = false
+
+function getStatus() -> str {
+  if isAdmin {
+    return "ON"
+  }
+  return "OFF"
+}
+
+Checkbox(checked: isAdmin, label: "Admin mode")
+Paragraph { "Admin mode is " + getStatus() }
+```
+
+Toggle the checkbox and the paragraph updates. Sinth sees that `getStatus` depends on `isAdmin`, so it re‑runs `getStatus` whenever `isAdmin` toggles.
+
+You can also pass values directly into a function to create reusable, reactive blocks.
+
+```ts
+var int apples = 1
+var int bananas = 2
+
+function Counter(int value) -> ui {
+  Heading(level: 1) { "Count: " + value }
+  Button(onClick: value += 1) { "Increment" }
+}
+
+Main {
+  Counter(apples)
+  Counter(bananas)
+}
+```
+
+Each `Counter` instance tracks its own argument. Change `apples` and only the first counter re‑renders; change `bananas` and only the second does. Functions are reactive boundaries.
+
+## Styling with variables
+
+CSS properties are attributes, and attributes accept reactive variables.
+
+```ts
+var str colorVar = "#6366f1"
+
+Paragraph(color: colorVar) { "This text changes color." }
+Input(bind: colorVar, placeholder: "Enter a color")
+```
+
+Type a new color in the input and the paragraph’s text color changes immediately. Any CSS property — `fontSize`, `backgroundColor`, `margin` — works the same way.
+
+## A peek at two‑way binding
+
+You’ve already seen `Input` and `Checkbox` used with `bind` and `checked`. These create a two‑way connection: the component reads from the variable, and when the user interacts with it, the variable is updated automatically.
+
+```ts
+var str name = ""
+Input(bind: name, placeholder: "Your name")
+Paragraph { "Hello, " + name }
+```
+
+But there’s more to it — what exactly happens under the hood, how to use it with numbers, and how to customise the binding. That deserves its own page.
+
+<Aside type="note">
+  Head over to [Two‑Way Binding](../two-way-binding) to master `bind` and `checked`.
+</Aside>
+
+## What you learned
+
+- Every reactive variable must be declared with `var` (e.g., `var int count = 0`)
+- Sinth automatically re‑renders any component that reads a changed variable
+- Conditionals (`if`) and loops (`for`) react to variable changes without extra effort
+- Array mutations like `remove` do **not** trigger reactivity – reassign the whole array instead
+- Functions are reactive: they track which variables they read and re‑evaluate when needed
+- CSS attributes accept variables, so you can style components reactively
+- Two‑way binding with `Input` and `Checkbox` is just the beginning – the next page covers it in depth
+
+You now know the basics of Sinth's reactivity. Next, you'll learn about [two‑way binding](../two-way-binding) and why it's so much easier in Sinth than in other frameworks.
